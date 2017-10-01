@@ -92,31 +92,40 @@ int main() {
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
 
-          Eigen::VectorXd vptsx = Eigen::VectorXd(ptsx.size());
-          Eigen::VectorXd vptsy = Eigen::VectorXd(ptsy.size());
 
           for (int i = 0; i < ptsx.size(); i++)
           {
-              double x = vptsx[i]- px;
-              double y = vptsy[i]- py;
-              vptsx[i] = x * cos(-1 * psi) - y * sin(-1 * psi);
-              vptsy[i] = x * sin(-1 * psi) + y * cos(-1 * psi);
+              double x = ptsx[i]- px;
+              double y = ptsy[i]- py;
+
+              ptsx[i] = x * cos(0 - psi) - y * sin(0 - psi);
+              ptsy[i] = x * sin(0 - psi) + y * cos(0 - psi);
           }
 
-          auto coeffs = polyfit(vptsx, vptsy, 3);
+
+          double* ptrx = &ptsx[0];
+
+          Eigen::Map<Eigen::VectorXd> ptsx_t(ptrx, 6);
+
+
+          double* ptry = &ptsy[0];
+          Eigen::Map<Eigen::VectorXd> ptsy_t(ptry, 6);
+
+          auto coeffs = polyfit(ptsx_t, ptsy_t, 3);
 
           double cte = polyeval(coeffs, 0);
 
-          double epsi = -1 * atan(coeffs[1]);
+          double epsi = -atan(coeffs[1]);
 
-          Eigen::VectorXd state(6);
+          Eigen::VectorXd state1(6);
 
-          state << 0, 0, 0, v, cte, epsi;
+          state1 << 0, 0, 0, v, cte, epsi;
 
-          auto sol = mpc.Solve(state, coeffs);
+          auto sol = mpc.Solve(state1, coeffs);
 
-          double steer_value = sol[1];
+
           double throttle_value = sol[0];
+          double steer_value = sol[1];
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
@@ -124,11 +133,11 @@ int main() {
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = throttle_value;
 
-          //Display the MPC predicted trajectory 
+          //Display the MPC predicted trajectory
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 
-          for (int i = 2; i < sol.size(); i++)
+          for (int i = 2; i < sol.size(); i=i+2)
           {
         	  mpc_x_vals.push_back(sol[i]);
         	  mpc_y_vals.push_back(sol[i+1]);
@@ -144,10 +153,10 @@ int main() {
           vector<double> next_x_vals;
           vector<double> next_y_vals;
 
-          for (int i = 0; i < vptsx.size(); i++)
+          for (int i = 0; i < ptsx.size(); i++)
           {
-        	  next_x_vals[i] = vptsx[i];
-        	  next_y_vals[i] = vptsy[i];
+        	  next_x_vals.push_back(ptsx[i]);
+        	  next_y_vals.push_back(ptsy[i]);
           }
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system

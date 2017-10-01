@@ -2,6 +2,7 @@
 #include <cppad/cppad.hpp>
 #include <cppad/ipopt/solve.hpp>
 #include "Eigen-3.3/Eigen/Core"
+#include <math.h>
 
 using CppAD::AD;
 
@@ -36,6 +37,9 @@ size_t cte_start = v_start + N;
 size_t epsi_start = cte_start + N;
 size_t delta_start = epsi_start + N;
 size_t a_start = delta_start + N - 1;
+
+
+static double deg2rad(double x) { return x * M_PI / 180; }
 
 class FG_eval {
  public:
@@ -257,7 +261,7 @@ vector<double> MPC::Solve(Eigen::VectorXd x0, Eigen::VectorXd coeffs) {
   vector<double> retVal;
 
   retVal.push_back(solution.x[a_start]);
-  retVal.push_back(solution.x[delta_start]);
+  retVal.push_back(solution.x[delta_start]);/*/(deg2rad(25)*Lf)*/
 
   for (int i = 0; i < N-1; i++)
   {
@@ -268,11 +272,6 @@ vector<double> MPC::Solve(Eigen::VectorXd x0, Eigen::VectorXd coeffs) {
 
   return retVal;
 
-
-  /*return {solution.x[x_start + 1],   solution.x[y_start + 1],
-          solution.x[psi_start + 1], solution.x[v_start + 1],
-          solution.x[cte_start + 1], solution.x[epsi_start + 1],
-          solution.x[delta_start],   solution.x[a_start]};*/
 }
 
 
