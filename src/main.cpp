@@ -12,6 +12,8 @@
 // for convenience
 using json = nlohmann::json;
 
+static const double Lf = 2.67;
+
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }
 double deg2rad(double x) { return x * pi() / 180; }
@@ -91,6 +93,19 @@ int main() {
           double py = j[1]["y"];
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
+          double delta = j[1]["steering_angle"];
+          double accle = j[1]["throttle"];
+
+
+          //To compensate for actuator delays predict
+          //x,y,v,cte,psi,epsi after 100msec using kinematic equations
+
+          double latency = 0.1;
+
+          px = px + v*cos(psi)*latency;
+          py = py + v*sin(psi)*latency;
+          psi = psi - v*(delta/Lf)*latency;
+          v = v + accle*latency;
 
 
           for (int i = 0; i < ptsx.size(); i++)
@@ -107,7 +122,6 @@ int main() {
 
           Eigen::Map<Eigen::VectorXd> ptsx_t(ptrx, 6);
 
-
           double* ptry = &ptsy[0];
           Eigen::Map<Eigen::VectorXd> ptsy_t(ptry, 6);
 
@@ -122,7 +136,6 @@ int main() {
           state1 << 0, 0, 0, v, cte, epsi;
 
           auto sol = mpc.Solve(state1, coeffs);
-
 
           double throttle_value = sol[0];
           double steer_value = sol[1];
