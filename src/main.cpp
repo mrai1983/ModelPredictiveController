@@ -95,11 +95,10 @@ int main() {
           Eigen::VectorXd vptsx = Eigen::VectorXd(ptsx.size());
           Eigen::VectorXd vptsy = Eigen::VectorXd(ptsy.size());
 
-
           for (int i = 0; i < ptsx.size(); i++)
           {
-              double x = vptsx[i]-px;
-              double y = vptsy[i]-py;
+              double x = vptsx[i]- px;
+              double y = vptsy[i]- py;
               vptsx[i] = x * cos(-1 * psi) - y * sin(-1 * psi);
               vptsy[i] = x * sin(-1 * psi) + y * cos(-1 * psi);
           }
@@ -129,6 +128,12 @@ int main() {
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 
+          for (int i = 2; i < sol.size(); i++)
+          {
+        	  mpc_x_vals.push_back(sol[i]);
+        	  mpc_y_vals.push_back(sol[i+1]);
+          }
+
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
 
@@ -138,6 +143,12 @@ int main() {
           //Display the waypoints/reference line
           vector<double> next_x_vals;
           vector<double> next_y_vals;
+
+          for (int i = 0; i < vptsx.size(); i++)
+          {
+        	  next_x_vals[i] = vptsx[i];
+        	  next_y_vals[i] = vptsy[i];
+          }
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
