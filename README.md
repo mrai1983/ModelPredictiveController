@@ -15,13 +15,19 @@ Model predictive controller class solve function initializes variable array, low
 
 Initialized vectors are then passed to IOPT solver to optimize input variables. 
 
-To compensate for latency of 100 msec, the inputs to compute transformed waypoints is computed using below kinematic equations 
+To compensate for latency of 100 msec, the inputs to compute transformed waypoints is computed using below kinematic equations. Reference to the approach has been taken from udacity discussions post  https://discussions.udacity.com/t/calibration-for-the-acceleration-and-steering-angle-for-latency-consideration/276413. 
 
           double latency = 0.1;(100 msec)
           px = px + v*cos(psi)*latency;
           py = py + v*sin(psi)*latency;
           psi = psi - v*(delta/Lf)*latency;
           v = v + accle * latency;
+
+
+Various values of N and dt has been tried. The most stable value for N has been found to be 10 and dt as 0.1 secs or 100 msec. If N selected is larger car becomes unstable and drives off track. Similarly values other than 0.1 secs results in car being driven off track.
+
+Cost weights of 2000, 2000, 1 5, 200 and 10 has been used for cte, epsi, velocity, delta, accleration, delta_diff and accle_diff respectively. The values used has been referenced from youtube link https://www.youtube.com/watch?v=bOQuhpz3YfU&feature=youtu.be. Higher weight would make optimizer more sensitive to the respective cost.
+
 
 
 ## Models
