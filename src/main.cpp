@@ -105,6 +105,7 @@ int main() {
           px = px + v*cos(psi)*latency;
           py = py + v*sin(psi)*latency;
           psi = psi - v*(delta/Lf)*latency;
+
           v = v + accle*latency;
 
 

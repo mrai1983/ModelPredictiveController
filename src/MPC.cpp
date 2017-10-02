@@ -6,7 +6,7 @@
 using CppAD::AD;
 
 size_t N = 10;
-double dt = 0.10;
+double dt = 0.1;
 
 const double Lf = 2.67;
 
